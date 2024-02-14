@@ -1,0 +1,67 @@
+name: auto-merge
+
+on:
+  pull_request_review:
+    types: [submitted]
+  # workflow_run:
+  #   workflows: [Test]
+  #   types: [completed]
+
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  Hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set env
+        run: |
+          echo 'HELLO=yes' | tee -a "$GITHUB_ENV"
+          echo '${{ toJSON(needs) }}'
+  Hello2:
+    needs: Hello
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello Check
+        if: env.HELLO == 'yes'
+        run: |
+          echo ${{github.event.workflow_run.conclusion}}
+
+    
+  auto-merge:
+    needs: [Hello, Hello2]
+    if: |
+      github.event.review.state == 'APPROVED'
+      && github.event.workflow_run.conclusion == 'success' 
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    env:
+      PR_URL: ${{github.event.pull_request.html_url}}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository with preceding commits
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # - name: Check if only README.md is updated
+      #   run: |
+      #     git diff --name-only "origin/main" HEAD | tee /tmp/diffs
+      #     if [ "$(wc -l < /tmp/diffs)" -eq "$(grep -c "^README.md$" /tmp/diffs)" ]; then
+      #       echo 'ONLY_README=yes' | tee -a "$GITHUB_ENV"
+      #     else
+      #       echo 'ONLY_README=no' | tee -a "$GITHUB_ENV"
+      #     fi
+
+      - name: Approve PR
+        # if: env.ONLY_README == 'yes'
+        run: gh pr review "$PR_URL" --approve
+
+      - name: Enable auto-merge
+        # if: env.ONLY_README == 'yes'
+        run: gh pr merge --merge --auto "$PR_URL"
+
