@@ -38,6 +38,7 @@ jobs:
     env:
       PR_URL: ${{github.event.pull_request.html_url}}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO_NAME: ${{github.event.pull_request.head.repo.full_name}}
     steps:
       - name: Checkout repository with preceding commits
         uses: actions/checkout@v4
@@ -54,7 +55,7 @@ jobs:
       #     fi
 
       - name: echo env
-        run: echo ${{toJSON(github.event.pull_request)}}
+        run: echo "$REPO_NAME"
 
       - name: Approve PR
         # if: env.ONLY_README == 'yes'
