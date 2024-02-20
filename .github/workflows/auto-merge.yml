@@ -7,7 +7,6 @@ on:
   #   workflows: [Test]
   #   types: [completed]
 
-
 permissions:
   pull-requests: write
   contents: write
@@ -29,12 +28,11 @@ jobs:
         run: |
           echo ${{github.event.workflow_run.conclusion}}
 
-    
   auto-merge:
     needs: [Hello, Hello2]
     if: |
       github.event.review.state == 'APPROVED'
-      && github.event.workflow_run.conclusion == 'success' 
+      && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -44,7 +42,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository with preceding commits
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -64,4 +62,3 @@ jobs:
       - name: Enable auto-merge
         # if: env.ONLY_README == 'yes'
         run: gh pr merge --merge --auto "$PR_URL"
-
