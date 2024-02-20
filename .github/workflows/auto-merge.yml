@@ -23,6 +23,8 @@ jobs:
     needs: Hello
     runs-on: ubuntu-latest
     steps:
+      - name: check env
+        run: echo env.HELLO
       - name: Hello Check
         if: env.HELLO == 'yes'
         run: |
