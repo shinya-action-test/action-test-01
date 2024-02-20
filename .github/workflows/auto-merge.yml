@@ -54,7 +54,7 @@ jobs:
       #     fi
 
       - name: echo env
-        run: echo ${{github.event.pull_request}}
+        run: echo ${{toJSON(github.event.pull_request)}}
 
       - name: Approve PR
         # if: env.ONLY_README == 'yes'
