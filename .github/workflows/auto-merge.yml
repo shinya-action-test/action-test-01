@@ -24,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Hello Check
-        if: env.HELLO == 'yes'
         run: |
           echo ${{github.event.workflow_run.conclusion}}
 
@@ -32,7 +31,6 @@ jobs:
     needs: [Hello, Hello2]
     if: |
       github.event.review.state == 'APPROVED'
-      && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -40,6 +38,7 @@ jobs:
     env:
       PR_URL: ${{github.event.pull_request.html_url}}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO_NAME: ${{github.event.pull_request.head.repo.full_name}}
     steps:
       - name: Checkout repository with preceding commits
         uses: actions/checkout@v4
@@ -54,6 +53,9 @@ jobs:
       #     else
       #       echo 'ONLY_README=no' | tee -a "$GITHUB_ENV"
       #     fi
+
+      - name: echo env
+        run: echo "$REPO_NAME"
 
       - name: Approve PR
         # if: env.ONLY_README == 'yes'
