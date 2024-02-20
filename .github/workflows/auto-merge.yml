@@ -53,6 +53,9 @@ jobs:
       #       echo 'ONLY_README=no' | tee -a "$GITHUB_ENV"
       #     fi
 
+      - name: echo env
+        run: echo ${{github.event.workflow_run}}
+
       - name: Approve PR
         # if: env.ONLY_README == 'yes'
         run: gh pr review "$PR_URL" --approve
